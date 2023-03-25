@@ -90,6 +90,7 @@ class Attention(nn.Module):
             args.dim,
             bias=False,
         )
+        # limited cache in advance, this model not for a conversation manner
         self.cache_k = torch.zeros(
             (args.max_batch_size, args.max_seq_len, self.n_local_heads, self.head_dim)
         )
@@ -122,6 +123,8 @@ class Attention(nn.Module):
 
         self.cache_k[:bsz, start_pos : start_pos + seqlen] = xk
         self.cache_v[:bsz, start_pos : start_pos + seqlen] = xv
+        print("cache_k", self.cache_k.norm())
+        print("cache_v", self.cache_v.norm())
 
         keys = self.cache_k[:bsz, : start_pos + seqlen]
         values = self.cache_v[:bsz, : start_pos + seqlen]
@@ -209,6 +212,7 @@ class Transformer(nn.Module):
     def forward(self, tokens: torch.Tensor, start_pos: int):
         _bsz, seqlen = tokens.shape
         h = self.tok_embeddings(tokens)
+
         self.freqs_cis = self.freqs_cis.to(h.device)
         freqs_cis = self.freqs_cis[start_pos : start_pos + seqlen]
 
