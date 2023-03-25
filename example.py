@@ -38,15 +38,15 @@ def load(
     max_batch_size: int,
 ) -> LLaMA:
     start_time = time.time()
-    checkpoints = sorted(Path(ckpt_dir).glob("*.pth"))
-    assert world_size == len(
-        checkpoints
-    ), f"Loading a checkpoint for MP={len(checkpoints)} but world size is {world_size}"
-    ckpt_path = checkpoints[local_rank]
-    print("Loading")
-    checkpoint = torch.load(ckpt_path, map_location="cpu")
-    with open(Path(ckpt_dir) / "params.json", "r") as f:
-        params = json.loads(f.read())
+#     checkpoints = sorted(Path(ckpt_dir).glob("*.pth"))
+#     assert world_size == len(
+#         checkpoints
+#     ), f"Loading a checkpoint for MP={len(checkpoints)} but world size is {world_size}"
+#     ckpt_path = checkpoints[local_rank]
+#     print("Loading")
+#     checkpoint = torch.load(ckpt_path, map_location="cpu")
+#     with open(Path(ckpt_dir) / "params.json", "r") as f:
+#         params = json.loads(f.read())
 
     model_args: ModelArgs = ModelArgs(
         max_seq_len=max_seq_len, max_batch_size=max_batch_size, **params
@@ -56,7 +56,7 @@ def load(
     torch.set_default_tensor_type(torch.cuda.HalfTensor)
     model = Transformer(model_args)
     torch.set_default_tensor_type(torch.FloatTensor)
-    model.load_state_dict(checkpoint, strict=False)
+#     model.load_state_dict(checkpoint, strict=False)
 
     generator = LLaMA(model, tokenizer)
     print(f"Loaded in {time.time() - start_time:.2f} seconds")
